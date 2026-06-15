@@ -36,41 +36,133 @@ def distance(x1, y1, x2, y2):
     return math.sqrt(relative_distance)
 
 def circlesIntersect(x1, y1, r1, x2, y2, r2):
-    return 42
+    return distance(x1, y1, x2, y2) <= (r1 + r2)
 
 def getInRange(x, bound1, bound2):
-    return 42
+    max_bound = max(bound1, bound2)
+    min_bound = min(bound1, bound2)
+    if x < min_bound:
+        return min_bound
+    elif x > max_bound:
+        return max_bound
+    else:
+        return x
 
 def eggCartons(eggs):
-    return 42
+    box = decimal.Decimal(eggs) / decimal.Decimal('12')
+    return int(decimal.Decimal(box).to_integral_value(rounding=decimal.ROUND_UP))
 
 def pascalsTriangleValue(row, col):
-    return 42
+    if isinstance(row, int) and isinstance(col, int):
+        return math.factorial(row) / (math.factorial(col) * math.factorial(row - col))
+    else:
+        return None
 
 def getKthDigit(n, k):
-    return 42
+    if isinstance(n, int) and isinstance(k, int) and k > 0:
+        return n // (10 ** k) % 10
+    return None
 
 def setKthDigit(n, k, d):
-    return 42
+    if isinstance(d, int) and (0 <= d <= 9):
+        return n - (getKthDigit(n, k) * 10 ** k) + d * 10 ** k
+    else:
+        return None
 
 def nearestOdd(n):
-    return 42
+    if isinstance(n, float):
+        n = roundHalfUp(n)
+    if n % 2 == 0:
+        return n - 1
+    return n
 
 def numberOfPoolBalls(rows):
-    return 42
+    if rows == 0:
+        return 0
+    if isinstance(rows, int) and (rows > 0):
+        return int(rows * (rows + 1) / 2)
+    return None
 
 def numberOfPoolBallRows(balls):
-    return 42
+    if isinstance(balls, int) and (balls > 0):
+        rows = (math.sqrt(8 * balls + 1) - 1) / 2
+        if rows > int(rows):
+            return int(rows) + 1
+        else:
+            return int(rows)
+    else:
+        return None
 
 def colorBlender(rgb1, rgb2, midpoints, n):
-    return 42
+    if isinstance(rgb1, int) and isinstance(rgb2, int) and isinstance(midpoints, int) and isinstance(n, int):
+        if rgb1 > 0 and rgb2 > 0 and n > 0 and midpoints > 0:
+            if n in list(range(midpoints + 2)):
+                rgb1red = rgb1 // 10 ** 6
+                rgb1green = rgb1 // 10**3 % 10**3
+                rgb1blue = rgb1 % 10**3
+                rgb2red = rgb2 // 10 ** 6
+                rgb2green = rgb2 // 10**3 % 10**3
+                rgb2blue = rgb2 % 10**3
+                rgbNred = roundHalfUp(rgb1red - abs(rgb1red - rgb2red) * (n / (midpoints + 1)))
+                rgbNgreen = roundHalfUp(rgb1green - abs(rgb1green - rgb2green) * (n / (midpoints + 1)))
+                rgbNblue = roundHalfUp(rgb1blue - abs(rgb1blue - rgb2blue) * (n / (midpoints + 1)))
+                return rgbNred * 10 ** 6 + rgbNgreen * 10 ** 3 + rgbNblue
+            else:
+                return None
+        else:
+            return None
+    else:
+        return None
 
 #################################################
 # Bonus/Optional
 #################################################
 
 def bonusPlayThreeDiceYahtzee(dice):
-    return 42
+    hand = dice % 1000
+    dice_pool = dice // 1000
+    hand_step1, dice_step1 = playStep2(hand, dice_pool)
+    hand_step2, _ = playStep2(hand_step1, dice_step1)
+    score_play = score(hand_step2)
+    return hand_step2, score_play
+
+def handToDice(hand):
+    if isinstance(hand, int) and (hand > 100):
+        return (hand // 100 % 10, hand // 10 % 10, hand % 10)
+    return None
+
+def diceToOrderedHand(a, b, c):
+    max_dice = max(a, b, c)
+    min_dice = min(a, b, c)
+    mid_dice = a + b + c - max_dice - min_dice
+    return max_dice * 100 + mid_dice * 10 + min_dice
+
+def playStep2(hand, dice):
+    hand_tuple = handToDice(hand)
+    max_dice = max(hand_tuple[0], hand_tuple[1], hand_tuple[2])
+    min_dice = min(hand_tuple[0], hand_tuple[1], hand_tuple[2])
+    mid_dice = hand_tuple[0] + hand_tuple[1] + hand_tuple[2] - max_dice - min_dice
+    dice_1 = dice % 10
+    dice_2 = dice // 10 % 10
+    if max_dice == min_dice:
+        return hand, dice
+    elif mid_dice == max_dice or mid_dice == min_dice:
+        return diceToOrderedHand(dice_1, mid_dice, mid_dice), dice // 10
+    else:
+        return diceToOrderedHand(max_dice, dice_1, dice_2), dice // 100
+
+def score(hand):
+    dice_tuple = handToDice(hand)
+    dice_a = dice_tuple[0]
+    dice_b = dice_tuple[1]
+    dice_c = dice_tuple[2]
+    if dice_a == dice_b == dice_c:
+        return 20 + dice_a * 3
+    elif dice_a == dice_b or dice_a == dice_c or dice_b == dice_c:
+        mid_dice = dice_a + dice_b + dice_c - max(dice_a, dice_b, dice_c) - min(dice_a, dice_b, dice_c)
+        return 10 + mid_dice * 2
+    else:
+        return max(dice_a, dice_b, dice_c)
 
 #################################################
 # Test Functions
