@@ -47,19 +47,20 @@ def getInRange(x, bound1, bound2):
         return max_bound
     else:
         return x
+    # return max(min_bound, min(x, max_bound)) is this better?
 
 def eggCartons(eggs):
     box = decimal.Decimal(eggs) / decimal.Decimal('12')
     return int(decimal.Decimal(box).to_integral_value(rounding=decimal.ROUND_UP))
 
 def pascalsTriangleValue(row, col):
-    if isinstance(row, int) and isinstance(col, int):
+    if isinstance(row, int) and isinstance(col, int) and row > 0 and col > 0 and row > col:
         return math.factorial(row) / (math.factorial(col) * math.factorial(row - col))
     else:
         return None
 
 def getKthDigit(n, k):
-    if isinstance(n, int) and isinstance(k, int) and k > 0:
+    if isinstance(n, int) and isinstance(k, int) and k >= 0:
         return n // (10 ** k) % 10
     return None
 
