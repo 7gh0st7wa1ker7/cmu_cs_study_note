@@ -73,10 +73,10 @@ def processOrder():
 
 时间复杂度（Order of n）：单位：`O(n)`，表达的意思是数据扩大 10 倍，运行时间扩大 10 倍。
 
-一层循环 `for i in range(n) -> O(n)`;
-两层循环 `for i in range(n): for j in range(n): -> O(n**2)`
-两个连续的循环 `for i in range(n): ... && for j in range(n) -> O(2n)`
-一半规模 `while n > 1: n //= 2 -> O(log n)` (二分查询)
+- 一层循环 `for i in range(n) -> O(n)`;
+- 两层循环 `for i in range(n): for j in range(n): -> O(n**2)`
+- 两个连续的循环 `for i in range(n): ... && for j in range(n) -> O(2n)`
+- 一半规模 `while n > 1: n //= 2 -> O(log n)` (二分查询)
 
 所以后续在使用循环方法的时候，需要注意能减少嵌套层，或者减少需要过滤的数据量，来降低计算量。
 
