@@ -81,10 +81,18 @@ def nthPalindromicPrime(n):
     前十个回文素数依次为 2、3、5、7、11、101、131、151、181、191，因此 `nthPalindromicPrime(0)` 应返回 2，
     `nthPalindromicPrime(1)` 应返回 3，依此类推。
     """
-
-    return 42
+    start_digit = 2
+    while n < 0:
+        if isPrimeNum(start_digit) and isPalindromicNumber(start_digit):
+            n -= 1
+        start_digit += 1
+    return start_digit
 
 def mostFrequentDigit(n):
+    """
+    编写函数 mostFrequentDigit(n)，该函数接受一个可能为负数的整数 n，
+    并返回 0 到 9 中出现频率最高的数字，如果出现频率相同的数字，则返回较小的数字。
+    """
     return 42
 
 def findZeroWithBisection(f, x0, x1, epsilon):
