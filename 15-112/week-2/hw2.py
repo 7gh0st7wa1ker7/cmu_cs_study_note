@@ -81,11 +81,11 @@ def nthPalindromicPrime(n):
     前十个回文素数依次为 2、3、5、7、11、101、131、151、181、191，因此 `nthPalindromicPrime(0)` 应返回 2，
     `nthPalindromicPrime(1)` 应返回 3，依此类推。
     """
-    start_digit = 2
-    while n < 0:
+    start_digit = 1
+    while n >= 0:
+        start_digit += 1
         if isPrimeNum(start_digit) and isPalindromicNumber(start_digit):
             n -= 1
-        start_digit += 1
     return start_digit
 
 def mostFrequentDigit(n):
@@ -93,15 +93,57 @@ def mostFrequentDigit(n):
     编写函数 mostFrequentDigit(n)，该函数接受一个可能为负数的整数 n，
     并返回 0 到 9 中出现频率最高的数字，如果出现频率相同的数字，则返回较小的数字。
     """
-    return 42
+    if abs(n) < 10:
+        return abs(n)
+
+    digit = 0
+    freqCount = 0
+    mostFreqDigit = 0
+
+    while digit <= 9:
+        count = 0
+        while n > 0:
+            if n % 10 == digit:
+                count += 1
+            n //= 10
+
+        if count > freqCount:
+            freqCount = count
+            mostFreqDigit = digit
+        digit += 1
+    return mostFreqDigit
 
 def findZeroWithBisection(f, x0, x1, epsilon):
-    return 42
+    if f(x0) * f(x1) > 0:
+        return None
+
+    while (x1 - x0) > epsilon:
+        xmid = (x1 + x0) / 2
+        if f(xmid) == 0:
+            return xmid
+        elif f(x0) * f(xmid) > 0:
+            x0 = xmid
+        else:
+            x1 = xmid
+    return (x0 + x1) / 2
 
 def carrylessAdd(x, y):
-    return 42
+    count = 0
+    place = 0
+    while x > 0 or y > 0:
+        count += (x % 10 + y % 10) % 10 * 10 ** place
+        x //= 10
+        y //= 10
+        place += 1
+    return count
 
 def longestDigitRun(n):
+    """
+    编写函数 longestDigitRun(n)，该函数接受一个可能为负数的整数 n 作为参数，返回拥有最长连续序列的数字；
+    若存在多个数字的连续序列长度相同，则返回其中最小的那个数字。
+    例如，longestDigitRun(117773732) 返回 7（因为存在 3 个连续的 7），longestDigitRun(-677886) 的返回结果同样是 7。
+    """
+
     return 42
 
 def playPig():
