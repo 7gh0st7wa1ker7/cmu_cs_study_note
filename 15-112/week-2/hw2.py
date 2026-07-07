@@ -4,6 +4,9 @@
 # andrew id:
 #################################################
 
+import decimal
+import random
+
 import cs112_f22_week2_linter
 
 #################################################
@@ -13,9 +16,6 @@ import cs112_f22_week2_linter
 def almostEqual(d1, d2, epsilon=10**-7): #helper-fn
     # note: use math.isclose() outside 15-112 with Python version 3.5 or later
     return (abs(d2 - d1) < epsilon)
-
-import decimal
-
 
 def roundHalfUp(d): #helper-fn
     # Round to nearest with ties going away from zero.
@@ -35,8 +35,11 @@ def digitCount(n):
     虽然可以通过返回 `len(str(abs(n)))` 来实现，但你不能这样做，因为此处不允许使用字符串！
     这个问题虽然可以用对数求解，但鉴于本周的主题是“循环（loops）”，你应该采用的方法是：不断去掉个位上的数字，直到无法继续为止。
     """
-    count = 1
-    while (n // 10) != 0:
+    n = abs(n)
+    if abs(n) < 10:
+        return 1
+    count = 0
+    while abs(n) > 0:
         n //= 10
         count += 1
     return count
@@ -46,6 +49,7 @@ def hasConsecutiveDigits(n):
     编写函数 `hasConsecutiveDigits(n)`，该函数接收一个整数 `n`（可能是负数），
     如果该数包含两个相同的相邻数字，则返回 `True`，否则返回 `False`。
     """
+    n = abs(n)
     while (n // 10) != 0:
         if (n % 10) == (n // 10 % 10):
             return True
@@ -63,17 +67,17 @@ def isPalindromicNumber(n):
     while n != 0:
         reversed_int = reversed_int * 10 + n % 10
         n //= 10
-    if source_int == reversed_int:
-        return True
-    return False
+
+    return source_int == reversed_int
 
 def isPrimeNum(n):
-    m = int(n / 2) + 1
-    while m > 1:
-        if n % m == 0:
-            return True
-        m -= 1
-    return False
+    if n < 2:
+        return True
+
+    for i in range(2, n):
+        if n % i == 0:
+            return False
+    return True
 
 def nthPalindromicPrime(n):
     """
@@ -81,40 +85,42 @@ def nthPalindromicPrime(n):
     前十个回文素数依次为 2、3、5、7、11、101、131、151、181、191，因此 `nthPalindromicPrime(0)` 应返回 2，
     `nthPalindromicPrime(1)` 应返回 3，依此类推。
     """
-    start_digit = 1
+    num = 1
     while n >= 0:
-        start_digit += 1
-        if isPrimeNum(start_digit) and isPalindromicNumber(start_digit):
+        num += 1
+        if isPrimeNum(num) and isPalindromicNumber(num):
             n -= 1
-    return start_digit
+    return num
 
 def mostFrequentDigit(n):
     """
     编写函数 mostFrequentDigit(n)，该函数接受一个可能为负数的整数 n，
     并返回 0 到 9 中出现频率最高的数字，如果出现频率相同的数字，则返回较小的数字。
     """
-    if abs(n) < 10:
-        return abs(n)
-
-    digit = 0
-    freqCount = 0
+    n = abs(n)
+    maxCount = 0
     mostFreqDigit = 0
 
+    digit = 0
     while digit <= 9:
         count = 0
-        while n > 0:
-            if n % 10 == digit:
+        temp = n
+        while temp > 0:
+            if temp % 10 == digit:
                 count += 1
-            n //= 10
+            temp //= 10
 
-        if count > freqCount:
-            freqCount = count
+        if n == 0 and digit == 0:
+            count = 1
+
+        if count > maxCount:
+            maxCount = count
             mostFreqDigit = digit
         digit += 1
     return mostFreqDigit
 
 def findZeroWithBisection(f, x0, x1, epsilon):
-    if f(x0) * f(x1) > 0:
+    if f(x0) * f(x1) >= 0:
         return None
 
     while (x1 - x0) > epsilon:
@@ -128,14 +134,14 @@ def findZeroWithBisection(f, x0, x1, epsilon):
     return (x0 + x1) / 2
 
 def carrylessAdd(x, y):
-    count = 0
+    result = 0
     place = 0
     while x > 0 or y > 0:
-        count += (x % 10 + y % 10) % 10 * 10 ** place
+        result += (x % 10 + y % 10) % 10 * 10 ** place
         x //= 10
         y //= 10
         place += 1
-    return count
+    return result
 
 def longestDigitRun(n):
     """
@@ -143,31 +149,176 @@ def longestDigitRun(n):
     若存在多个数字的连续序列长度相同，则返回其中最小的那个数字。
     例如，longestDigitRun(117773732) 返回 7（因为存在 3 个连续的 7），longestDigitRun(-677886) 的返回结果同样是 7。
     """
+    n = abs(n)
+    if n < 10:
+        return n
 
-    return 42
+    bestDigit = 0
+    bestCount = 0
+    currentDigit = -1
+    currentCount = 0
+
+    while n > 0:
+        digit = n % 10
+        if digit == currentDigit:
+            currentCount += 1
+        else:
+            currentDigit = digit
+            currentCount = 1
+
+        if (currentCount > bestCount) or (
+            currentCount == bestCount and currentCount < bestCount):
+            bestCount = currentCount
+            bestDigit = currentDigit
+
+        n //= 10
+
+    return bestDigit
 
 def playPig():
-    return 42
+    user1Scores = 0
+    user2Scores = 0
+    userTurn = 0
+
+    print("Let's start playPig!")
+
+    while (user1Scores < 100) and (user2Scores < 100):
+        print(f"Player {userTurn + 1}'s turn!")
+        print(f"Current scores - Player 1: {user1Scores}, Player 2: {user2Scores}")
+        scoresCount = 0
+        print(f"Turn total: {scoresCount}")
+        while True:
+            isHold = input("Do you want hold?")
+            if isHold == "hold":
+                if userTurn == 0:
+                    user1Scores += scoresCount
+                    userTurn = 1
+                    scoresCount = 0
+                else:
+                    userTurn = 0
+                    user2Scores += scoresCount
+                    scoresCount = 0
+                continue
+            scores = random.randint(1, 6)
+            print(f"this turn scores is {scores}")
+            if scores == 1:
+                if userTurn == 0:
+                    userTurn = 1
+                    scoresCount = 0
+                else:
+                    userTurn = 0
+                    scoresCount = 0
+                continue
+            scoresCount += scores
+    if user1Scores >= 100:
+        return "user1 is winner."
+    return "user2 si winner."
 
 #################################################
 # Bonus/Optional
 #################################################
 
 def bonusCarrylessMultiply(x1, x2):
-    return 42
+    result = 0
+    place = 0
+
+    while x2 > 0:
+        count = 0
+        turn = x2 % 10
+        while turn > 0:
+            count = carrylessAdd(count, x1)
+            turn -= 1
+        result = carrylessAdd(result, count * 10 ** place)
+        x2 //= 10
+        place += 1
+    return result
 
 ############################
 # bonus: integerDataStructures
 ############################
 
-def intCat(n, m): pass
-def lengthEncode(value): pass
-def lengthDecode(encoding): pass
-def lengthDecodeLeftmostValue(encoding): pass
-def newIntList(): pass
-def intListLen(intList): pass
-def intListGet(intList, i): pass
-def intListSet(intList, i, value): pass
+def intCat(n, m):
+    "收两个非负整数并返回它们的拼接结果"
+    if n < 0 or m < 0:
+        return "n,m must Greater than or equal to 0."
+
+    return n * 10 ** digitCount(m) + m
+
+def lengthEncode(value):
+    place = digitCount(value)
+
+    if value >= 0:
+        result = 1
+    else:
+        result = 2
+
+    if place >= 10:
+        result = intCat(result, 2)
+    else:
+        result = intCat(result, 1)
+
+    result = intCat(result, digitCount(place))
+
+    return intCat(intCat(result, place), abs(value))
+
+def substring(digit, n, m):
+    digitLen = digitCount(digit)
+    result = digit % 10 ** (digitLen - n) // 10 ** (digitLen - 1 - m)
+    return result
+
+def lengthDecode(encoding):
+    isPositive = substring(encoding, 0, 0)
+    placeNum = substring(encoding, 1, 1)
+
+    if placeNum == 1:
+        len_encoding = substring(encoding, 2, 2)
+    else:
+        len_encoding = substring(encoding, 2, 3)
+
+    result = encoding % 10 ** len_encoding
+
+    if isPositive == 1:
+        return result
+    return -result
+
+def lengthDecodeLeftmostValue(encoding):
+    lenDigit = digitCount(encoding)
+
+    tagDigit = substring(encoding, 2, 2)
+
+    tagNum = substring(encoding, 3, 3 - (tagDigit -1))
+
+    sourceNum = substring(encoding, 4 + (tagDigit - 1), lenDigit)
+    return tagNum, sourceNum
+
+def newIntList():
+    return 1110
+
+def intListLen(intList):
+    lenList, _ =lengthDecodeLeftmostValue(intList)
+    return lenList
+
+def intListGet(intList, i):
+    lenList, intSource = lengthDecodeLeftmostValue(intList)
+
+    if i > lenList:
+        return 'index out of range'
+
+    intLen = 0
+    while i >= 0:
+        intLen, intSource =  lengthDecodeLeftmostValue(intSource)
+        i -= 1
+    return intLen
+
+def intListSet(intList, i, value):
+    lenList, intSource = lengthDecodeLeftmostValue(intList)
+
+    if i > lenList:
+        return 'index out of range'
+
+
+    return 42
+
 def intListAppend(intList, value): pass
 def intListPop(intList): pass
 def newIntSet(): pass
