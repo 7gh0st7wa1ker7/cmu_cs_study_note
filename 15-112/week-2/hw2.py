@@ -245,26 +245,23 @@ def intCat(n, m):
     return n * 10 ** digitCount(m) + m
 
 def lengthEncode(value):
-    place = digitCount(value)
+    valueLen = digitCount(value)
 
     if value >= 0:
-        result = 1
+        isPositive = 1
     else:
-        result = 2
+        isPositive = 2
 
-    if place >= 10:
-        result = intCat(result, 2)
+    if valueLen >= 10:
+        result = intCat(isPositive, 2)
     else:
-        result = intCat(result, 1)
+        result = intCat(isPositive, 1)
 
-    result = intCat(result, digitCount(place))
-
-    return intCat(intCat(result, place), abs(value))
+    return intCat(intCat(result, valueLen), abs(value))
 
 def substring(digit, n, m):
     digitLen = digitCount(digit)
-    result = digit % 10 ** (digitLen - n) // 10 ** (digitLen - 1 - m)
-    return result
+    return digit % 10 ** (digitLen - n) // 10 ** (digitLen - 1 - m)
 
 def lengthDecode(encoding):
     isPositive = substring(encoding, 0, 0)
@@ -279,17 +276,26 @@ def lengthDecode(encoding):
 
     if isPositive == 1:
         return result
-    return -result
+    return result * -1
 
 def lengthDecodeLeftmostValue(encoding):
-    lenDigit = digitCount(encoding)
-
-    tagDigit = substring(encoding, 2, 2)
-
-    tagNum = substring(encoding, 3, 3 - (tagDigit -1))
-
-    sourceNum = substring(encoding, 4 + (tagDigit - 1), lenDigit)
-    return tagNum, sourceNum
+    isPositive = substring(encoding, 0, 0)
+    numPlace = substring(encoding, 1, 1)
+    
+    if numPlace == 1:
+        numLen = substring(encoding, 2, 2)
+    else:
+        numLen = substring(encoding, 2, 3)
+    
+    if numLen >= 10:
+        num = substring(encoding, 4, numLen + 3)
+    else:
+        num = substring(encoding, 3, numLen + 2)
+    
+    if isPositive != 1:
+        num = num * -1
+        
+    return num, encoding % 10 ** (digitCount(encoding) - numLen - 3)
 
 def newIntList():
     return 1110
@@ -311,11 +317,6 @@ def intListGet(intList, i):
     return intLen
 
 def intListSet(intList, i, value):
-    lenList, intSource = lengthDecodeLeftmostValue(intList)
-
-    if i > lenList:
-        return 'index out of range'
-
 
     return 42
 
