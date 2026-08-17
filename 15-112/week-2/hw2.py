@@ -4,6 +4,7 @@
 # andrew id:
 #################################################
 
+from ast import Return
 import decimal
 import random
 
@@ -398,60 +399,119 @@ def intSetContains(intSet, value):
             return True
     
     return False
-
+ 
 
 def newIntMap():
-    pass
+    "不接受任何参数，返回一个空映射，即空列表"
+    return 1110
 
 
 def intMapGet(intMap, key):
-    pass
+    "接收一个映射和一个键，返回该映射中与该键关联的值，或在适当时返回字符串“无此键”。"
+    mapLen, mapList = lengthDecodeLeftmostValue(intMap)
+    
+    if intMapContains(intMap, key):
+        i = 0
+        tagInt = 0
+        while i <= mapLen:
+            tagInt, mapList = lengthDecodeLeftmostValue(mapList)
+            if tagInt == key:
+                i = mapLen
+                continue
+            i += 1
+            
+        return tagInt
+    else:
+        return 'no such key'
 
 
 def intMapContains(intMap, key):
-    pass
+    "接收一个映射和一个键，若该映射包含该键（作为键而非值），则返回 True，否则返回 False"
+    mapLen, mapStr = lengthDecodeLeftmostValue(intMap)
+    keyPlace = mapLen - 1
+    while keyPlace >= 0:
+        mapKey, mapStr = lengthDecodeLeftmostValue(mapStr)
+        if keyPlace % 2 == 0 and mapKey == key:
+            return True
+        keyPlace -= 1
+    return False
 
 
 def intMapSet(intMap, key, value):
-    pass
+    "接收一个映射、一个键和一个值，返回一个新映射"
+    mapLen, mapStr = lengthDecodeLeftmostValue(intMap)
+    
+    i = 0
+    tagInt = 0
+    
+    while i <= mapLen:
+        tagInt, mapStr = lengthDecodeLeftmostValue(mapStr)
+        if tagInt == key:
+            break
+        i += 1
+    
+    return intListSet(intMap, i + 1, value)
 
 
 def newIntFSM():
-    pass
+    "无参数，返回一个空的有限状态机（FSM），该状态机包含一个空的转换映射和一个空的接受状态集合。"
+    return 111211411101141110
 
 
 def isAcceptingState(fsm, state):
-    pass
+    "接收一个有限状态机（fsm）和一个状态，如果该状态位于接受状态集合中则返回 True，否则返回 False"
+    
 
 
 def addAcceptingState(fsm, state):
+    "接收一个有限状态机（fsm）和一个状态，返回一个新的有限状态机，该有限状态机与原有限状态机的唯一区别是将指定状态添加到了接受状态集合中。"
     pass
 
 
 def setTransition(fsm, fromState, digit, toState):
+    "返回一个新的有限状态机（FSM），该有限状态机与给定的有限状态机（fsm）相同，只是添加了这个新的转换"
     pass
 
 
 def getTransition(fsm, fromState, digit):
+    "返回由该起始状态在该数字上映射到的目标状态"
     pass
 
 
 def accepts(fsm, inputValue):
+    "接收一个有限状态机（FSM）和一个输入值，如果该有限状态机接受该输入值则返回 True，否则返回 False"
     pass
 
 
 def states(fsm, inputValue):
+    "接收一个有限状态机（fsm）和一个输入值（inputValue），其功能与 accepts(fsm, inputValue) 基本一致，区别在于本函数不返回 True 或 False，而是返回一个列表（长度编码前缀列表）"
     pass
 
 
 def encodeString(s):
     "接收一个 Python 字符串 s，并返回一个长度前缀形式的列表，该列表包含 s 中各字符的序数值"
+    sLen = 0
+    sList = 0
     
-
+    for i in s:
+        sLen += 1
+        sEncodeInt = ord(i)
+        sList = intCat(sList, lengthEncode(sEncodeInt))
+        
+    return intCat(lengthEncode(sLen), sList)
+        
 
 def decodeString(intList):
     "接收一个长度前缀列表 L，并返回对应的 Python 字符串"
-    pass
+    result = ''
+    strLen, sourceStr = lengthDecodeLeftmostValue(intList)
+    
+    while strLen > 0:
+        element, sourceStr = lengthDecodeLeftmostValue(sourceStr)
+        result = result + chr(lengthDecode(element))
+        strLen -= 1
+        
+    return result
 
 
 #################################################
