@@ -4,10 +4,10 @@
 # andrew id:
 #################################################
 
-from ast import Return
 import decimal
 import random
 
+# from ast import Return
 import cs112_f22_week2_linter
 
 #################################################
@@ -180,7 +180,7 @@ def longestDigitRun(n):
             currentCount = 1
 
         if (currentCount > bestCount) or (
-            currentCount == bestCount and currentCount < bestCount
+            currentCount == bestCount and currentDigit <= bestDigit
         ):
             bestCount = currentCount
             bestDigit = currentDigit
@@ -340,19 +340,19 @@ def intListGet(intList, i):
 
 def intListSet(intList, i, value):
     "接收一个列表和一个索引，返回一个新列表，该列表中给定索引处的值被替换为 v 的编码后的值。必要时返回字符串'索引超出范围'。"
-    result = intListGet(intList, i)
-    if isinstance(result, int):
-        listLen, sourceList = lengthDecodeLeftmostValue(intList)
-        newList = 0
-        while i >= 0:
-            element, sourceList = lengthDecodeLeftmostValue(sourceList)
+    listLen, sourceList = lengthDecodeLeftmostValue(intList)
+    if i >= listLen:
+        return "index out of range"
+
+    newList = 0
+    for idx in range(listLen):
+        element, sourceList = lengthDecodeLeftmostValue(sourceList)
+        if idx == i:
+            newList = intCat(newList, lengthEncode(value))
+        else:
             newList = intCat(newList, lengthEncode(element))
-            i -= 1
-            
-        newList = intCat(newList, sourceList)
-        return intCat(lengthEncode(listLen), newList)
-    else:
-        return result
+
+    return intCat(lengthEncode(listLen), newList)
 
 
 def intListAppend(intList, value):
@@ -367,14 +367,19 @@ def intListPop(intList):
     "接收一个列表并移除最后一个值（“弹出”该值）。随后返回两个值：移除弹出值后的列表，以及被弹出的那个值本身"
     listLen, sourceList = lengthDecodeLeftmostValue(intList)
     newLen = listLen - 1
-    
+
     newList = 0
-    while listLen > 0:
+    idx = 0
+    lastElement = 0
+    while listLen > idx:
         element, sourceList = lengthDecodeLeftmostValue(sourceList)
-        newList = intCat(newList, lengthEncode(element))
-        listLen -= 1
-    
-    return intCat(lengthEncode(newLen), newList), lengthDecode(sourceList)
+        if idx < newLen:
+            newList = intCat(newList, lengthEncode(element))
+        else:
+            lastElement = element
+        idx += 1
+
+    return intCat(lengthEncode(newLen), newList), lastElement
 
 
 def newIntSet():
@@ -388,18 +393,18 @@ def intSetAdd(intSet, value):
         return intSet
     else:
         return intListAppend(intSet, value)
-    
+
 
 def intSetContains(intSet, value):
     "接受一个集合和一个值，若该集合包含此值则返回 True，否则返回 False。"
     setLen, sourceSet = lengthDecodeLeftmostValue(intSet)
-    while setLen >= 0:
+    while setLen > 0:
         element, sourceSet = lengthDecodeLeftmostValue(sourceSet)
         if element == value:
             return True
-    
+        setLen -= 1
     return False
- 
+
 
 def newIntMap():
     "不接受任何参数，返回一个空映射，即空列表"
@@ -409,48 +414,43 @@ def newIntMap():
 def intMapGet(intMap, key):
     "接收一个映射和一个键，返回该映射中与该键关联的值，或在适当时返回字符串“无此键”。"
     mapLen, mapList = lengthDecodeLeftmostValue(intMap)
-    
-    if intMapContains(intMap, key):
-        i = 0
-        tagInt = 0
-        while i <= mapLen:
-            tagInt, mapList = lengthDecodeLeftmostValue(mapList)
-            if tagInt == key:
-                i = mapLen
-                continue
-            i += 1
-            
-        return tagInt
-    else:
-        return 'no such key'
+    i = 0
+    while i < mapLen:
+        k, mapList = lengthDecodeLeftmostValue(mapList)
+        v, mapList = lengthDecodeLeftmostValue(mapList)
+        if k == key:
+            return v
+    return "no such key"
 
 
 def intMapContains(intMap, key):
     "接收一个映射和一个键，若该映射包含该键（作为键而非值），则返回 True，否则返回 False"
     mapLen, mapStr = lengthDecodeLeftmostValue(intMap)
-    keyPlace = mapLen - 1
-    while keyPlace >= 0:
-        mapKey, mapStr = lengthDecodeLeftmostValue(mapStr)
-        if keyPlace % 2 == 0 and mapKey == key:
+    i = 0
+    while i < mapLen:
+        k, mapStr = lengthDecodeLeftmostValue(mapStr)
+        _, mapStr = lengthDecodeLeftmostValue(mapStr)
+        if k == key:
             return True
-        keyPlace -= 1
+        i += 2
     return False
 
 
 def intMapSet(intMap, key, value):
     "接收一个映射、一个键和一个值，返回一个新映射"
-    mapLen, mapStr = lengthDecodeLeftmostValue(intMap)
-    
-    i = 0
-    tagInt = 0
-    
-    while i <= mapLen:
-        tagInt, mapStr = lengthDecodeLeftmostValue(mapStr)
-        if tagInt == key:
-            break
-        i += 1
-    
-    return intListSet(intMap, i + 1, value)
+    if intMapContains(intMap, key):
+        mapLen, mapStr = lengthDecodeLeftmostValue(intMap)
+        i = 0
+        while i < mapLen:
+            k, mapStr = lengthDecodeLeftmostValue(mapStr)
+            _, mapStr = lengthDecodeLeftmostValue(mapStr)
+            if k == key:
+                return intListSet(intMap, i + 1, value)
+            i += 2
+    else:
+        intMap = intListAppend(intMap, key)
+        intMap = intListAppend(intMap, value)
+        return intMap
 
 
 def newIntFSM():
@@ -460,7 +460,6 @@ def newIntFSM():
 
 def isAcceptingState(fsm, state):
     "接收一个有限状态机（fsm）和一个状态，如果该状态位于接受状态集合中则返回 True，否则返回 False"
-    
 
 
 def addAcceptingState(fsm, state):
@@ -492,25 +491,25 @@ def encodeString(s):
     "接收一个 Python 字符串 s，并返回一个长度前缀形式的列表，该列表包含 s 中各字符的序数值"
     sLen = 0
     sList = 0
-    
+
     for i in s:
         sLen += 1
         sEncodeInt = ord(i)
         sList = intCat(sList, lengthEncode(sEncodeInt))
-        
+
     return intCat(lengthEncode(sLen), sList)
-        
+
 
 def decodeString(intList):
     "接收一个长度前缀列表 L，并返回对应的 Python 字符串"
-    result = ''
+    result = ""
     strLen, sourceStr = lengthDecodeLeftmostValue(intList)
-    
+
     while strLen > 0:
         element, sourceStr = lengthDecodeLeftmostValue(sourceStr)
         result = result + chr(lengthDecode(element))
         strLen -= 1
-        
+
     return result
 
 
