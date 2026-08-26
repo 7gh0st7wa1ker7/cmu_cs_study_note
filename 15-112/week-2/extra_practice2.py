@@ -38,25 +38,73 @@ def roundHalfUp(d):
 
 def isPrime(n):
     "判断是否为质数"
-    m = int(n / 2) + 1
+    if n == 1:
+        return False
+    m = n - 1
     while m > 1:
         if n % m == 0:
             return False
         m -= 1
     return True
 
-
+def isLeftTruncatablePrime(n):
+    "判断是否为可左截短素数"
+    if isPrime(n):
+        m = n % 10
+        i = 1
+        while m != n:
+            if isPrime(m):
+                i += 1
+                m = n % (10 ** i)
+            else:
+                return False
+        return True
+    else:
+        return False
+    
+    
 def nthLeftTruncatablePrime(n):
-    """"
+    """
     编写函数 nthLeftTruncatablePrime (n)。详见此处了解详细说明。
     即 nthLeftTruncatablePrime (0) 返回 2，nthLeftTruncatablePrime (10) 返回 53。
     """
-    
-    return 42
+    prime = 2
+    if n == 0:
+        return prime
+    while n > 0:
+        prime += 1
+        if isLeftTruncatablePrime(prime):
+            n -= 1
+    return prime
+
+
+def is_powerful_number(n:int) -> bool:
+    "判断 n 是否为 Powerful Number"
+    if n <= 0:
+        return False
+    if n == 1:
+        return True
+    i = 2
+    while i * i <= n:
+        if n % i == 0:
+            if n % (i * i) != 0:
+                return False
+            while n % i == 0:
+                n //= i
+        i += 1
+    return n == 1
 
 
 def nthPowerfulNumber(n):
-    return 42
+    "输出第 n 个 Powerful Number"
+    if n == 0:
+        return 1
+    i = 2
+    while n > 0:
+        i += 1
+        if is_powerful_number(i):
+            n -= 1
+    return i
 
 
 def nthWithProperty309(n):
